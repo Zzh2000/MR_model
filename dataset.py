@@ -27,7 +27,9 @@ action_dict={
     'Stop':3
 }
 class HandGestureDataset(data.Dataset):
-    def __init__(self, datadir='data', skipfirstframes=30, recognition_frames=10):
+    def __init__(self, datadir='data', skipfirstframes=30, recognition_frames=10, mode='train'):
+        self.mode=mode
+
         self.skipfirstframes = skipfirstframes
         self.datadir = datadir
         files = sorted(glob.glob('data/*.txt'))
@@ -72,9 +74,17 @@ class HandGestureDataset(data.Dataset):
         
         
     def __len__(self):
-        return self.all_hand_joints.shape[0]
+        if self.mode=='train':
+            return int(self.all_hand_joints.shape[0]*0.75)
+        elif self.mode=='test':
+            return int(self.all_hand_joints.shape[0]*0.25)
+        
 
     def __getitem__(self, index):
+        if self.mode=='test':
+            print('tot length', self.all_hand_joints.shape[0])
+            index+=int(self.all_hand_joints.shape[0]*0.75)
+            print(index)
         input=torch.from_numpy(self.all_hand_joints[index]).float()
         label=self.all_actions[index//self.recognition_frames]
         # print(input.shape)

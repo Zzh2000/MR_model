@@ -72,13 +72,16 @@ def train(model, dl_train, optimizer, epoch, log_interval=100, device='cuda:0'):
         100. * correct / len(dl_train.dataset)))
 
 recognition_frames=70
-dataset=HandGestureDataset(recognition_frames=recognition_frames)
-train_set, val_set = torch.utils.data.random_split(dataset, [int(len(dataset)*0.7), len(dataset)-int(len(dataset)*0.7)])
+# dataset=HandGestureDataset(recognition_frames=recognition_frames)
+# train_set, test_set = torch.utils.data.random_split(dataset, [int(len(dataset)*0.7), len(dataset)-int(len(dataset)*0.7)])
+
+train_set=HandGestureDataset(recognition_frames=recognition_frames, mode='train')
+test_set=HandGestureDataset(recognition_frames=recognition_frames, mode='test')
 
 BATCH_SIZE = 10
 NUM_WORKERS = 4
 dl_train = DataLoader(train_set, shuffle=True, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
-dl_test = DataLoader(val_set, shuffle=False, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
+dl_test = DataLoader(test_set, shuffle=False, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
 
 
 
