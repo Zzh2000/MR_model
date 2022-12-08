@@ -1,3 +1,4 @@
+import time
 import torch.optim as optim
 from torch.utils.data import DataLoader
 import torchvision
@@ -71,12 +72,13 @@ def train(model, dl_train, optimizer, epoch, log_interval=100, device='cuda:0'):
         loss, correct, len(dl_train.dataset),
         100. * correct / len(dl_train.dataset)))
 
-recognition_frames=70
-# dataset=HandGestureDataset(recognition_frames=recognition_frames)
-# train_set, test_set = torch.utils.data.random_split(dataset, [int(len(dataset)*0.7), len(dataset)-int(len(dataset)*0.7)])
+recognition_frames=5
 
-train_set=HandGestureDataset(recognition_frames=recognition_frames, mode='train')
-test_set=HandGestureDataset(recognition_frames=recognition_frames, mode='test')
+dataset=HandGestureDataset(recognition_frames=recognition_frames)
+train_set, test_set = torch.utils.data.random_split(dataset, [int(len(dataset)*0.7), len(dataset)-int(len(dataset)*0.7)])
+
+# train_set=HandGestureDataset(recognition_frames=recognition_frames, mode='train')
+# test_set=HandGestureDataset(recognition_frames=recognition_frames, mode='test')
 
 BATCH_SIZE = 10
 NUM_WORKERS = 4
@@ -97,6 +99,7 @@ model = MLP(nInput, nOutput, nLayer, nHidden, act_fn).cuda()
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 epochs = 100
 for epoch in range(1, epochs + 1):
+    # time.sleep(1)
     train(model, dl_train, optimizer, epoch, log_interval=100)
     test(model, dl_test)
 

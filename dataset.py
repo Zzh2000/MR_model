@@ -27,7 +27,7 @@ action_dict={
     'Stop':3
 }
 class HandGestureDataset(data.Dataset):
-    def __init__(self, datadir='data', skipfirstframes=30, recognition_frames=10, mode='train'):
+    def __init__(self, datadir='data', skipfirstframes=30, recognition_frames=10, mode=''):
         self.mode=mode
 
         self.skipfirstframes = skipfirstframes
@@ -63,10 +63,14 @@ class HandGestureDataset(data.Dataset):
         all_hand_joints=np.stack(all_hand_joints)
         # print(all_actions.shape)
         # print(all_hand_joints.shape)
-        
         self.recognition_frames=recognition_frames
         self.all_hand_joints=all_hand_joints.reshape(-1, self.recognition_frames*78)
+        # print(self.all_hand_joints.shape)
+        all_actions=all_actions.unsqueeze(-1).repeat(1, (100-skipfirstframes)//recognition_frames)
         # print(all_actions)
+        # print(all_actions.shape)
+        all_actions=all_actions.reshape(-1)
+        
         # exit(0)
         
         # all_actions=F.one_hot(all_actions.long(), 4)
@@ -78,15 +82,18 @@ class HandGestureDataset(data.Dataset):
             return int(self.all_hand_joints.shape[0]*0.75)
         elif self.mode=='test':
             return int(self.all_hand_joints.shape[0]*0.25)
-        
+        else:
+            return self.all_hand_joints.shape[0]
 
     def __getitem__(self, index):
         if self.mode=='test':
-            print('tot length', self.all_hand_joints.shape[0])
+            # print('tot length', self.all_hand_joints.shape[0])
             index+=int(self.all_hand_joints.shape[0]*0.75)
-            print(index)
+            # print(index)
+
+
         input=torch.from_numpy(self.all_hand_joints[index]).float()
-        label=self.all_actions[index//self.recognition_frames]
+        label=self.all_actions[index]
         # print(input.shape)
         # print(label.shape)
         return input, label
